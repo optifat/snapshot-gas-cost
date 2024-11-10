@@ -1,14 +1,14 @@
 {
-  "name": "@uniswap/snapshot-gas-cost",
+  "name": "snapshot-gas-cost",
   "version": "1.0.0",
   "description": "Tiny utility function for snapshotting gas costs in unit tests",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "repository": "git@github.com:Uniswap/snapshot-gas-cost.git",
+  "repository": "git@github.com:optifat/snapshot-gas-cost.git",
   "author": {
-    "name": "Uniswap Labs",
-    "email": "contact@uniswap.org"
+    "name": "Optifat"
   },
+  "contributors": ["Original Author: Uniswap Labs contact@uniswap.org"],
   "license": "GPL-2.0-or-later",
   "private": false,
   "scripts": {
