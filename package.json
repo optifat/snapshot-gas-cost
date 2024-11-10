@@ -1,5 +1,5 @@
 {
-  "name": "snapshot-gas-cost",
+  "name": "@optifat/snapshot-gas-cost",
   "version": "1.1.0",
   "description": "Tiny utility function for snapshotting gas costs in unit tests",
   "main": "dist/index.js",
