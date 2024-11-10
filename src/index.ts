@@ -1,6 +1,4 @@
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
-import { BigNumber } from '@ethersproject/bignumber'
-import { ContractTransaction } from '@ethersproject/contracts'
+import { BigNumberish, TransactionReceipt, TransactionResponse} from 'ethers'
 import { expect, use } from 'chai'
 
 import { jestSnapshotPlugin } from 'mocha-chai-jest-snapshot'
@@ -12,31 +10,33 @@ export default async function snapshotGasCost(
     | Promise<TransactionResponse>
     | TransactionResponse[]
     | Promise<TransactionResponse>[]
-    | ContractTransaction
-    | Promise<ContractTransaction>
     | TransactionReceipt
-    | Promise<BigNumber>
-    | BigNumber
-    | Promise<number>
-    | number
+    | Promise<BigNumberish>
+    | BigNumberish
 ): Promise<void> {
   const unpromised = await x
   if (Array.isArray(unpromised)) {
     const unpromisedDeep = await Promise.all(unpromised.map(async (p) => await p))
     const waited = await Promise.all(unpromisedDeep.map(async (p) => p.wait()))
-    expect({
-      gasUsed: waited.reduce((m, v) => m + v.gasUsed.toNumber(), 0),
-      calldataByteLength: unpromisedDeep.reduce((m, v) => m + v.data.length / 2 - 1, 0),
-    }).toMatchSnapshot()
-  } else if (typeof unpromised === 'number') {
-    expect(unpromised).toMatchSnapshot()
-  } else if ('wait' in unpromised) {
+    unpromisedDeep.map((u, i) => ({u, w: waited[i]})).forEach((e) => 
+      expect({
+        gasUsed: e.w?.gasUsed,
+        calldataByteLength: e.u.data.length / 2 - 1,
+      }).toMatchSnapshot()
+    )
+  } else if (unpromised instanceof TransactionResponse) {
     const waited = await unpromised.wait()
     expect({
-      gasUsed: waited.gasUsed.toNumber(),
+      gasUsed: Number(waited?.gasUsed),
       calldataByteLength: unpromised.data.length / 2 - 1,
     }).toMatchSnapshot()
-  } else if (BigNumber.isBigNumber(unpromised)) {
-    expect(unpromised.toNumber()).toMatchSnapshot()
+  } else if (unpromised instanceof TransactionReceipt) {
+    const response = await unpromised.getTransaction();
+    expect({
+      gasUsed: Number(unpromised?.gasUsed),
+      calldataByteLength: response.data.length / 2 - 1,
+    }).toMatchSnapshot()
+  } else {
+    expect(Number(unpromised)).toMatchSnapshot()
   }
 }
